@@ -1,0 +1,48 @@
+/* Add to your global CSS or component-specific styles */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* For the sliding transition effect */
+.transition-transform {
+  transition-property: transform;
+}
+
+.duration-700 {
+  transition-duration: 700ms;
+}
+
+.ease-in-out {
+  transition-timing-function: ease-in-out;
+}
+
+/* Shadow and hover effects */
+.shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+.hover\:scale-110:hover {
+  transform: scale(1.1);
+}
+
+/* Responsive height adjustments */
+@media (min-width: 768px) {
+  .h-120 {
+    height: 30rem; /* 480px */
+  }
+}
+
+@media (max-width: 767px) {
+  .h-96 {
+    height: 24rem; /* 384px */
+  }
+}

@@ -1,8 +1,7 @@
 import { useState, useEffect, useContext } from "react"
 import { Link } from "react-router-dom"
 import CountContext from "../context/CountContext"
-
-const API_BASE = "/api"
+import { API_BASE } from "../utils/api"
 
 const Dashboard = () => {
   const { user } = useContext(CountContext)

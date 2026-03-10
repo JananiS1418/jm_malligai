@@ -11,7 +11,7 @@ const Footer = () => {
 
   return (
     <footer className="w-full bg-gray-900 text-gray-300">
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-12">
+      <div className="w-full px-4 sm:px-6 lg:px-8 pt-12 pb-0">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 max-w-7xl mx-auto">
           {/* Brand */}
           <div className="md:col-span-2">
@@ -52,8 +52,8 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="mt-10 pt-8 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 max-w-7xl mx-auto">
+        {/* Bottom bar - no extra space below */}
+        <div className="mt-8 pt-6 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 max-w-7xl mx-auto">
           <p className="text-gray-500 text-sm">© 2026 JM Maligai. All rights reserved.</p>
           <div className="flex gap-6 text-sm">
             <Link to="/" className="text-gray-500 hover:text-gray-400 transition">Privacy</Link>

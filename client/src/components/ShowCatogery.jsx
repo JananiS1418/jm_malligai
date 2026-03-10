@@ -2,8 +2,8 @@ import { useEffect, useState, useContext } from "react"
 import toast from "react-hot-toast"
 import CountContext from "../context/CountContext"
 import Modal from "./Modal"
+import { API_BASE } from "../utils/api"
 
-const API_BASE = "/api"
 const PER_PAGE = 10
 
 const ShowCatogery = () => {

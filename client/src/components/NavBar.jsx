@@ -40,16 +40,22 @@ const NavBar = () => {
               Home
             </Link>
             <Link
-              to="/"
+              to="/shop"
               className="px-4 py-2 rounded-lg text-gray-600 hover:text-green-600 hover:bg-green-50 font-medium text-sm transition"
             >
               Products
             </Link>
             <Link
-              to="/"
+              to="/offers"
               className="px-4 py-2 rounded-lg text-gray-600 hover:text-green-600 hover:bg-green-50 font-medium text-sm transition"
             >
               Offers
+            </Link>
+            <Link
+              to="/request"
+              className="px-4 py-2 rounded-lg text-gray-600 hover:text-green-600 hover:bg-green-50 font-medium text-sm transition"
+            >
+              Upload Bill
             </Link>
             {isAuthenticated && (
               <Link

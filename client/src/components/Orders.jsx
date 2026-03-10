@@ -1,8 +1,7 @@
 import { useContext, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import CountContext from '../context/CountContext'
-
-const API_BASE = '/api'
+import { API_BASE, resolveUploadUrl } from '../utils/api'
 
 const statusColors = {
   Pending: 'bg-amber-100 text-amber-800',
@@ -47,8 +46,7 @@ const Orders = () => {
 
   const imageSrc = (img) => {
     if (!img) return 'https://placehold.co/80x80?text=No+Image'
-    if (typeof img === 'string' && img.startsWith('/uploads/')) return img
-    return img
+    return resolveUploadUrl(img)
   }
 
   if (loading) {

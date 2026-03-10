@@ -1,8 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import CountContext from '../context/CountContext';
-
-const API_BASE = '/api';
+import { API_BASE, resolveUploadUrl } from '../utils/api';
 
 const Profile = () => {
   const { user } = useContext(CountContext);
@@ -149,7 +148,7 @@ const Profile = () => {
                 >
                   <div className="aspect-square flex items-center justify-center bg-white/5 p-4">
                     <img
-                      src={p.image || 'https://placehold.co/200?text=No+Image'}
+                      src={resolveUploadUrl(p.image) || 'https://placehold.co/200?text=No+Image'}
                       alt={p.name}
                       className="w-full h-full object-contain group-hover:scale-105 transition"
                       onError={(e) => {

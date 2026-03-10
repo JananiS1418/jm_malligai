@@ -1,8 +1,7 @@
 import { useState, useEffect, useContext } from "react"
 import toast from "react-hot-toast"
 import CountContext from "../context/CountContext"
-
-const API_BASE = "/api"
+import { API_BASE } from "../utils/api"
 
 const statusColors = {
   Pending: "bg-amber-100 text-amber-800",

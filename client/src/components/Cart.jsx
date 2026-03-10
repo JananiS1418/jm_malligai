@@ -2,6 +2,7 @@ import { useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import CountContext from '../context/CountContext'
 import toast from 'react-hot-toast'
+import { resolveUploadUrl } from '../utils/api'
 
 const Cart = () => {
   const { cart, removeFromCart, updateCartQuantity, isAuthenticated } = useContext(CountContext)
@@ -33,8 +34,7 @@ const Cart = () => {
 
   const imageSrc = (img) => {
     if (!img) return 'https://placehold.co/120x120?text=No+Image'
-    if (typeof img === 'string' && img.startsWith('/uploads/')) return img
-    return img
+    return resolveUploadUrl(img)
   }
 
   if (cart.length === 0) {

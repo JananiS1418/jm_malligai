@@ -2,8 +2,8 @@ import { useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import CountContext from '../context/CountContext'
+import { API_BASE } from '../utils/api'
 
-const API_BASE = '/api'
 const PHONE_REGEX = /^[6-9]\d{9}$/
 const PINCODE_REGEX = /^\d{6}$/
 

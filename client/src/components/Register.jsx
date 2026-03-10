@@ -2,8 +2,8 @@ import { useState, useContext } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import CountContext from '../context/CountContext'
 import toast from 'react-hot-toast'
+import { API_BASE } from '../utils/api'
 
-const API_BASE = '/api'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const Register = () => {
@@ -103,7 +103,7 @@ const Register = () => {
   return (
     <div className="min-h-screen flex justify-center items-center relative overflow-hidden bg-[#e8f0e3] py-8">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(45,80,22,0.12),transparent_50%)]" />
-      <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[#c5d9bc]/40 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-linear-to-t from-[#c5d9bc]/40 to-transparent" />
       <div className="absolute top-20 right-10 w-64 h-64 bg-[#7cb342]/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-10 w-80 h-80 bg-[#2d5016]/10 rounded-full blur-3xl" />
 

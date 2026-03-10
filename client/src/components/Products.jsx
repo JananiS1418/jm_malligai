@@ -2,8 +2,8 @@ import { useState, useEffect, useContext } from "react"
 import toast from "react-hot-toast"
 import CountContext from "../context/CountContext"
 import Modal from "./Modal"
+import { API_BASE, resolveUploadUrl } from "../utils/api"
 
-const API_BASE = "/api"
 const PER_PAGE = 10
 const DEFAULT_WEIGHT_OPTIONS = [
   { weight: 0.25, label: "250 g", available: true },
@@ -14,7 +14,7 @@ const DEFAULT_WEIGHT_OPTIONS = [
 
 const Products = () => {
   const { user } = useContext(CountContext)
-  const [products, setProducts] = useState({ name: "", category: "", price: "", status: "Active", image: "" })
+  const [products, setProducts] = useState({ name: "", nameTamil: "", category: "", price: "", status: "Active", image: "" })
   const [weightOptions, setWeightOptions] = useState([...DEFAULT_WEIGHT_OPTIONS])
   const [imageFile, setImageFile] = useState(null)
   const [showproducts, setShowproducts] = useState([])
@@ -38,6 +38,7 @@ const Products = () => {
   const buildFormData = () => {
     const form = new FormData()
     form.append("name", products.name)
+    if (products.nameTamil != null) form.append("nameTamil", products.nameTamil)
     form.append("category", products.category)
     form.append("price", String(products.price))
     form.append("status", products.status)
@@ -81,7 +82,7 @@ const Products = () => {
   }, [])
 
   const openAdd = () => {
-    setProducts({ name: "", category: "", price: "", status: "Active", image: "" })
+    setProducts({ name: "", nameTamil: "", category: "", price: "", status: "Active", image: "" })
     setWeightOptions([...DEFAULT_WEIGHT_OPTIONS])
     setImageFile(null)
     setEditdata("")
@@ -95,6 +96,7 @@ const Products = () => {
       setImageFile(null)
       setProducts({
         name: found.name,
+        nameTamil: found.nameTamil || "",
         category: found.category,
         price: found.price,
         status: found.status,
@@ -112,7 +114,7 @@ const Products = () => {
   const closeModal = () => {
     setModalOpen(false)
     setEditdata("")
-    setProducts({ name: "", category: "", price: "", status: "Active", image: "" })
+    setProducts({ name: "", nameTamil: "", category: "", price: "", status: "Active", image: "" })
     setWeightOptions([...DEFAULT_WEIGHT_OPTIONS])
     setImageFile(null)
   }
@@ -185,8 +187,7 @@ const Products = () => {
 
   const imageSrc = (img) => {
     if (!img) return "https://placehold.co/120x120?text=No+Image"
-    if (img.startsWith("/uploads/")) return img
-    return img
+    return resolveUploadUrl(img)
   }
 
   const searchLower = search.trim().toLowerCase()
@@ -303,6 +304,10 @@ const Products = () => {
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
             <input type="text" name="name" value={products.name} onChange={handleChange} placeholder="Product name" className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Name (Tamil)</label>
+            <input type="text" name="nameTamil" value={products.nameTamil || ""} onChange={handleChange} placeholder="e.g. தக்காளி (for bill matching)" className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>

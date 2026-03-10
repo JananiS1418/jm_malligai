@@ -17,12 +17,18 @@ import Profile from '../components/Profile'
 import Cart from '../components/Cart'
 import Checkout from '../components/Checkout'
 import Orders from '../components/Orders'
+import Shop from '../components/Shop'
+import Offer from '../components/Offer'
+import RequestProducts from '../components/RequestProducts'
 
 const AppRoute = () => {
   return (
     <Routes>
       <Route element={<AppLayOut />}>
         <Route path="/" element={<Banner />} />
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/offers" element={<Offer />} />
+        <Route path="/request" element={<RequestProducts />} />
         <Route path="/cart" element={<Cart />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/profile" element={<Profile />} />

@@ -8,6 +8,7 @@ const weightOptionSchema = new mongoose.Schema({
 
 const productSchema = new mongoose.Schema({
     name: { type: String, required: true },
+    nameTamil: { type: String }, // Tamil name for bill matching (e.g. உருளைக்கிழங்கு, தக்காளி)
     category: { type: String, required: true },
     price: { type: Number, required: true },
     status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },

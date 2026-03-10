@@ -24,7 +24,13 @@ if (!process.env.MONGO_URI) {
 }
 
 const app = express();
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGIN || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+app.use(cors({
+    origin: allowedOrigins.length > 0 ? allowedOrigins : true,
+}));
 app.use(express.json());
 
 // Serve uploaded product images (full URL: http://localhost:5000/uploads/xxx)

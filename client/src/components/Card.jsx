@@ -3,8 +3,7 @@ import { useContext, useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import CountContext from '../context/CountContext'
 import Offer from './Offer'
-
-const API_BASE = '/api'
+import { API_BASE, resolveUploadUrl } from '../utils/api'
 
 function getAvailableWeights(product) {
   if (product.weightOptions && product.weightOptions.length > 0) {
@@ -75,7 +74,7 @@ const Card = () => {
             )}
           </div>
         ) : (
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch mb-8'>
+          <div className='grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 items-stretch mb-8'>
             {filteredProducts.map((e) => {
               const weights = getAvailableWeights(e)
               const allClosed = weights.length === 0
@@ -83,48 +82,48 @@ const Card = () => {
               return (
                 <div
                   key={e._id}
-                  className='bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col min-h-[420px] group overflow-hidden border border-gray-100'
+                  className='group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden'
                 >
-                  <div className='relative h-56 flex items-center justify-center bg-gray-50 overflow-hidden'>
+                  <div className='relative h-44 flex items-center justify-center bg-slate-50 overflow-hidden p-4'>
                     <img
-                      className='w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110'
-                      src={e.image || "https://placehold.co/150?text=No+Image"}
+                      className='w-full h-full object-contain transition-transform duration-300 group-hover:scale-105'
+                      src={resolveUploadUrl(e.image) || "https://placehold.co/200?text=No+Image"}
                       alt={e.name}
-                      onError={(ev) => { ev.target.onerror = null; ev.target.src = "https://placehold.co/150?text=No+Image" }}
+                      onError={(ev) => { ev.target.onerror = null; ev.target.src = "https://placehold.co/200?text=No+Image" }}
                     />
-                    <div className='absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md'>
+                    <span className='absolute top-2 right-2 bg-red-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm'>
                       SALE
-                    </div>
+                    </span>
+                    <span className='absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-white/90 backdrop-blur text-[10px] font-semibold text-slate-600 border border-slate-100'>
+                      {e.category}
+                    </span>
                   </div>
 
-                  <div className='flex flex-col flex-grow p-6'>
-                    <div className='mb-auto'>
-                      <h2 className='text-xl font-bold text-gray-800 text-center mb-1 line-clamp-1'>
-                        {e.name}
-                      </h2>
-                      <p className='text-gray-500 text-sm text-center mb-3'>{e.category}</p>
-
-                      <div className='flex justify-center items-end gap-2 mb-4'>
-                        <p className='text-2xl font-bold text-green-600'>
-                          ₹{e.price}<span className='text-sm font-normal text-gray-500'>/kg</span>
-                        </p>
-                        <p className='text-sm text-gray-400 line-through mb-1'>
-                          ₹{Math.round(parseFloat(e.price) * 1.2)}
-                        </p>
-                      </div>
+                  <div className='flex flex-col grow p-4 sm:p-5'>
+                    <h2 className='text-base font-bold text-slate-900 text-center mb-0.5 line-clamp-1'>
+                      {e.name}
+                    </h2>
+                    <div className='flex justify-center items-baseline gap-2 mb-4'>
+                      <span className='text-lg font-bold text-emerald-600'>
+                        ₹{e.price}
+                      </span>
+                      <span className='text-xs text-slate-500'>/kg</span>
+                      <span className='text-xs text-slate-400 line-through'>
+                        ₹{Math.round(parseFloat(e.price) * 1.2)}
+                      </span>
                     </div>
 
                     <div className='flex justify-center mb-4'>
                       {allClosed ? (
-                        <p className='text-amber-600 text-sm font-medium'>All weights closed</p>
+                        <p className='text-amber-600 text-xs font-medium'>Out of stock</p>
                       ) : (
-                        <div className='flex flex-wrap gap-2 justify-center'>
+                        <div className='flex flex-wrap gap-1.5 justify-center'>
                           {weights.map((w) => (
                             <button
                               key={w.weight}
                               type='button'
                               onClick={() => setSelectedWeight((prev) => ({ ...prev, [e._id]: w.weight }))}
-                              className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${currentWeight === w.weight ? 'bg-green-600 text-white border-green-600' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                              className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${currentWeight === w.weight ? 'bg-emerald-600 text-white border-emerald-600' : 'border-slate-200 text-slate-600 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700'}`}
                             >
                               {w.label}
                             </button>
@@ -133,15 +132,13 @@ const Card = () => {
                       )}
                     </div>
 
-                    <div className='mt-auto'>
-                      <button
-                        onClick={() => !allClosed && addToCart(e, currentWeight)}
-                        disabled={allClosed}
-                        className='w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg transform transition-all duration-300 hover:-translate-y-1 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
-                      >
-                        {allClosed ? 'Out of stock' : 'Add to Cart'}
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => !allClosed && addToCart(e, currentWeight)}
+                      disabled={allClosed}
+                      className='w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-sm hover:shadow transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]'
+                    >
+                      {allClosed ? 'Out of stock' : 'Add to Cart'}
+                    </button>
                   </div>
                 </div>
               )

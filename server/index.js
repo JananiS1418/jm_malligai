@@ -24,12 +24,21 @@ if (!process.env.MONGO_URI) {
 }
 
 const app = express();
-const allowedOrigins = (process.env.CORS_ORIGIN || '')
+
+// CORS: always allow production Vercel + localhost; merge with CORS_ORIGIN from env
+const defaultOrigins = [
+    'https://jm-malligai.vercel.app',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+];
+const envOrigins = (process.env.CORS_ORIGIN || '')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
+const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
+
 app.use(cors({
-    origin: allowedOrigins.length > 0 ? allowedOrigins : true,
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

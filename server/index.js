@@ -30,6 +30,9 @@ const allowedOrigins = (process.env.CORS_ORIGIN || '')
     .filter(Boolean);
 app.use(cors({
     origin: allowedOrigins.length > 0 ? allowedOrigins : true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
 }));
 app.use(express.json());
 

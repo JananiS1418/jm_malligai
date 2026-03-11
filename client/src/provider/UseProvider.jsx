@@ -47,6 +47,16 @@ const UseProvider = ({ children }) => {
   }, [cart])
 
   const addToCart = (product, weight = 1) => {
+    // Require login for adding to cart (applies across the whole app)
+    if (!isAuthenticated) {
+      try {
+        const next = `${window.location.pathname}${window.location.search || ''}`
+        sessionStorage.setItem('jm_next_after_login', next)
+      } catch {}
+      window.alert('Please login first to add items to cart.')
+      window.location.assign('/login')
+      return
+    }
     const id = product?._id
     if (!id) return
     const w = weight != null ? Number(weight) : 1

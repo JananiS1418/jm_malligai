@@ -13,6 +13,18 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  function getNextAfterLogin() {
+    try {
+      const next = sessionStorage.getItem('jm_next_after_login')
+      if (!next || typeof next !== 'string') return ''
+      // Only allow internal redirects
+      if (!next.startsWith('/')) return ''
+      return next
+    } catch {
+      return ''
+    }
+  }
+
   const handleClick = (e) => {
     e.preventDefault()
     navigate('/register')
@@ -41,7 +53,15 @@ const Login = () => {
       if (response.ok && data.token) {
         login(data)
         toast.success('Signed in')
-        navigate(data.role === 'Admin' ? '/dashboard' : '/')
+        if (data.role === 'Admin') {
+          navigate('/dashboard')
+        } else {
+          const next = getNextAfterLogin()
+          try {
+            sessionStorage.removeItem('jm_next_after_login')
+          } catch {}
+          navigate(next || '/')
+        }
       } else {
         setError(data.message || 'Invalid email or password.')
       }

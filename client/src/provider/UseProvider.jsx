@@ -54,7 +54,8 @@ const UseProvider = ({ children }) => {
         sessionStorage.setItem('jm_next_after_login', next)
       } catch {}
       window.alert('Please login first to add items to cart.')
-      window.location.assign('/login')
+      // Use client-side route path. With Vercel rewrites this works in production too.
+      window.location.href = '/login'
       return
     }
     const id = product?._id

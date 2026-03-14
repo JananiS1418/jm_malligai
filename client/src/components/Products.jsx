@@ -160,6 +160,12 @@ const Products = () => {
       }
     } catch (err) {
       console.error("Error saving product:", err)
+      const isNetworkError = err?.message === "Failed to fetch" || err?.name === "TypeError"
+      toast.error(
+        isNetworkError
+          ? "Could not reach server. If this is Vercel, set VITE_API_BASE_URL in Vercel env and ensure the backend (Render) is running."
+          : (err?.message || "Something went wrong")
+      )
     } finally {
       setLoading(false)
     }

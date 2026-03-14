@@ -13,7 +13,17 @@ function getAvailableWeights(product) {
   return [{ weight: 1, label: '1 kg' }]
 }
 
-/** Parse OCR text into potential product names (English/Tamil). Skip price/qty/slogan noise. */
+/** Normalize a product name for display and API (trim, collapse spaces). */
+function normalizeProductName(s) {
+  if (!s || typeof s !== 'string') return ''
+  return s.replace(/\s+/g, ' ').trim()
+}
+
+/**
+ * Parse OCR text into product names.
+ * Uses only line-based extraction when lines look like "ProductName - 1kg" / "ProductName : 1kg"
+ * so we get 2 items from 2 lines, not 8 from token noise.
+ */
 function parseProductNamesFromText(text) {
   if (!text || typeof text !== 'string') return []
   const skip = new Set([
@@ -23,28 +33,41 @@ function parseProductNamesFromText(text) {
     'item', 'items', 'name', 'description', 'mr', 'mrp', 'sum', 'grand', 'ru', 'in', 'the', 'a', 'an',
     'have', 'fun', 'bble'
   ])
-  const raw = text
-    .split(/[\n\r,;|\t\-]+/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-  const filtered = raw.filter((s) => {
-    if (s.length < 2) return false
-    if (/^\d+([.]\d+)?$/.test(s)) return false
-    if (/^[\d.,\-]+$/.test(s)) return false
-    if (/^\(?\s*kg\s*\d+/i.test(s)) return false
-    if (/\(.*\d+.*\)/.test(s) && s.length < 12) return false
-    if (s.includes('...') || (s.includes('!') && s.length > 15)) return false
-    const lower = s.toLowerCase()
-    if (skip.has(lower)) return false
-    const withoutNumbers = s.replace(/\d+[\d.,]*/g, '').trim().toLowerCase()
-    if (withoutNumbers.length < 2) return false
-    if (skip.has(withoutNumbers)) return false
-    if (/^(pes|rs|gms?|gams|grams?)\s*[\d.,\-]*$/i.test(s)) return false
-    if (/^[\d.,\-]+\s*(pes|rs|gms?|gams?)?$/i.test(s)) return false
-    if (/^[^\p{L}\p{N}]+$/u.test(s)) return false
-    return true
-  })
-  return [...new Set(filtered)]
+  const lineBased = new Set()
+
+  // 1) Line-based only: "ProductName - 1kg" or "ProductName : 1kg" or "ProductName 1 kg" -> one name per line
+  const lines = text.split(/[\n\r]+/).map((s) => s.trim()).filter(Boolean)
+  for (const line of lines) {
+    const match = line.match(/^([^:0-9\-]+?)\s*[:\-]\s*[\d.]*\s*(kg|g|gm|gms)?\s*$/i) ||
+                  line.match(/^([^:0-9\-]+?)\s*[:\-]?\s*[\d.]+\s*(kg|g|gm|gms)?\s*$/i) ||
+                  line.match(/^(.+?)\s+[\d.]+\s*(kg|g|gm|gms)?\s*$/i)
+    if (match) {
+      const name = normalizeProductName(match[1])
+      if (name.length >= 2 && name.length <= 40 && !/^\d+([.]\d+)?$/.test(name) && !skip.has(name.toLowerCase())) {
+        lineBased.add(name)
+      }
+    }
+  }
+
+  // If we got at least one clear product line, use only those (no token noise)
+  if (lineBased.size > 0) return [...lineBased]
+
+  // 2) Fallback: no clear lines – tokenize and keep only product-like words
+  const raw = text.split(/[\n\r,;|\t]+/).map((s) => s.trim()).filter(Boolean)
+  const out = new Set()
+  for (const s of raw) {
+    const cleaned = s.replace(/\s*[:\-]\s*[\d.]*\s*(kg|g|gm)?\s*$/i, '').trim()
+    if (cleaned.length < 2 || cleaned.length > 40) continue
+    if (/^\d+([.]\d+)?$/.test(cleaned)) continue
+    if (/^[\d.,\-]+$/.test(cleaned)) continue
+    if (/^\(?\s*kg\s*\d+/i.test(cleaned)) continue
+    if (skip.has(cleaned.toLowerCase())) continue
+    const withoutNumbers = cleaned.replace(/\d+[\d.,]*/g, '').trim().toLowerCase()
+    if (withoutNumbers.length < 2 || skip.has(withoutNumbers)) continue
+    if (/^[^\p{L}\p{N}]+$/u.test(cleaned)) continue
+    out.add(normalizeProductName(cleaned))
+  }
+  return [...out]
 }
 
 const RequestProducts = () => {
@@ -278,18 +301,6 @@ const RequestProducts = () => {
                     )
                   })}
                 </div>
-              </div>
-            )}
-
-            {notAvailable.length > 0 && (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 mb-6">
-                <h2 className="text-base font-semibold text-slate-800">
-                  Products not available
-                </h2>
-                <p className="text-slate-500 text-sm mt-1">
-                  {notAvailable.length} item{notAvailable.length !== 1 ? 's' : ''} from your bill could not be matched with our store products.
-                  Please upload a clearer bill or continue shopping.
-                </p>
               </div>
             )}
 

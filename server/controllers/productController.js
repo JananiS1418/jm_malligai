@@ -180,11 +180,22 @@ export const matchProductsByNames = async (req, res) => {
             return dp[al][bl];
         }
 
+        /** Normalize for matching: trim, collapse spaces, remove trailing/leading numbers and kg/g. */
+        function normalizeInput(str) {
+            if (!str || typeof str !== 'string') return '';
+            return str
+                .replace(/\s+/g, ' ')
+                .replace(/\s*\d+[\d.,]*\s*(kg|g|gm|gms)?\s*$/gi, '')
+                .replace(/^\s*\d+[\d.,]*\s*/g, '')
+                .trim();
+        }
+
         function findMatch(inputName) {
-            const raw = (inputName || '').trim();
+            const raw = (inputName || '').trim().replace(/\s+/g, ' ').trim();
             if (!raw) return null;
+            const inputNorm = normalizeInput(raw);
             const inputClean = normalizeForMatch(raw);
-            const inputLower = raw.toLowerCase();
+            const inputLower = (inputNorm || raw).toLowerCase();
             const inputCleanLower = inputClean.toLowerCase();
             const inputTrim = raw.trim();
             const inputNormTa = normalizeTamil(raw);
@@ -197,7 +208,7 @@ export const matchProductsByNames = async (req, res) => {
                 const nameTaNorm = normalizeTamil(nameTa);
                 const nameIsTamil = hasTamil(nameTa) || hasTamil(nameTaNorm);
 
-                const matchEnglish = nameEn && (
+                let matchEnglish = nameEn && (
                     nameEn === inputLower ||
                     nameEn === inputCleanLower ||
                     nameEn.includes(inputLower) ||
@@ -205,6 +216,21 @@ export const matchProductsByNames = async (req, res) => {
                     nameEn.includes(inputCleanLower) ||
                     inputCleanLower.includes(nameEn)
                 );
+
+                // Fuzzy English for OCR typos (e.g. Orion→Onion, Tomata→Tomato) – allow 1–2 char edit distance
+                let fuzzyEnglish = false;
+                if (!matchEnglish && nameEn && inputLower.length >= 2 && inputLower.length <= 30) {
+                    const d = levenshtein(nameEn, inputLower);
+                    const maxLen = Math.max(nameEn.length, inputLower.length);
+                    if (maxLen <= 6 && d <= 2) fuzzyEnglish = true;
+                    else if (d <= 2 || (maxLen >= 4 && (d / maxLen) <= 0.4)) fuzzyEnglish = true;
+                }
+                // Word match: "Onion" matches "Small Onion", "Tomato" matches "Tomato"
+                const productWords = nameEn.split(/\s+/).filter(Boolean);
+                const inputWords = inputLower.split(/\s+/).filter(Boolean);
+                const wordMatch = productWords.some((w) => w === inputLower || inputLower === w) ||
+                    (inputWords.length === 1 && productWords.some((w) => w === inputWords[0] || w.includes(inputWords[0]) || inputWords[0].includes(w)));
+                if (wordMatch && !matchEnglish) matchEnglish = true;
 
                 const matchTamil = nameTa && (
                     nameTa === inputTrim ||
@@ -219,7 +245,6 @@ export const matchProductsByNames = async (req, res) => {
                     inputCleanNormTa.includes(nameTaNorm)
                 );
 
-                // Fuzzy Tamil match for OCR spelling mistakes (only when both look Tamil)
                 let fuzzyTamil = false;
                 if (!matchTamil && inputIsTamil && nameIsTamil && inputCleanNormTa.length >= 3 && nameTaNorm.length >= 3) {
                     const d = levenshtein(inputCleanNormTa, nameTaNorm);
@@ -227,7 +252,7 @@ export const matchProductsByNames = async (req, res) => {
                     fuzzyTamil = d <= 2 || (maxLen >= 6 && (d / maxLen) <= 0.3);
                 }
 
-                if (matchEnglish || matchTamil) return p;
+                if (matchEnglish || matchTamil || fuzzyEnglish) return p;
                 if (fuzzyTamil) return p;
             }
             return null;
